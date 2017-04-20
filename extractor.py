@@ -94,3 +94,32 @@ def parse_football_url(url):
     market_attrs["market"] = [result.group(6)]
 
     return market_attrs
+
+
+
+def get_df_for_market(url):
+
+    """
+    Given URL, returns dataframe with market attributes and prices
+    """
+
+    prices_dict = get_best_prices_for_market(url)
+    df_prices = pd.DataFrame(prices_dict)
+
+    market_attrs = parse_football_url(url)
+    kick_off = get_kick_off(url)
+    date = get_current_date()
+    market_attrs["kickoff"] = [kick_off]
+    market_attrs["date"] = [date]
+    df_market_attrs = pd.DataFrame(market_attrs)
+
+    number_of_prices = len(prices_dict['price'])
+    df = df_market_attrs
+    for number in range(number_of_prices - 1):
+        df = pd.concat([df, df_market_attrs])
+    df.index = list(range(number_of_prices)) 
+
+    dataframe = pd.concat([df, df_prices], axis = 1)
+    dataframe = dataframe.loc[:, ['date', 'website', 'sport','fixture', 'country','league','market', 'selection' ,'price','kickoff']]
+
+    return dataframe
