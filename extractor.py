@@ -60,12 +60,13 @@ def get_best_prices_for_market(url):
 
 
 
-def get_kick_off(bs4):
+def get_kick_off(url):
     
     """
-    Given BeautifulSoup object, returns fixture's kick-off date and time as a string
+    Given URL, returns fixture's kick-off date and time as a string
     """
     
+    bs4 = from_url_to_bs4(url)
     source = str(bs4)
     kick_off_string = re.search("startDate\":\"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d)", source)
     kick_off = kick_off_string.group(1).replace('T', " ")
