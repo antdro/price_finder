@@ -13,12 +13,9 @@ def get_markets_from_oddschecker(url):
 	
 	URL example: 'https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter/betting-markets'
 	"""
-	
-    if "/betting-markets" not in url:
-        raise ValueError("\
-        \nURL is invalid. \
-        \nGood url example: https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter/betting-markets")
-
+	if "/betting-markets" not in url:
+			raise ValueError("URL is invalid. \nURL example: 'https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter				/betting-markets'")
+        
 	list_of_markets = []
 	bs4 = from_url_to_bs4(url)
 
@@ -37,7 +34,7 @@ def get_markets_from_oddschecker(url):
 
 
 
-def get_best_prices_for_market(url)
+def get_best_prices_for_market(url):
 
 	"""
 	Given URL, returns dictionary with selections and prices for correcponding fixture and market
