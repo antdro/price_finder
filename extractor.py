@@ -2,6 +2,9 @@
 
 from importer import *
 from loader import *
+import datetime
+
+
 
 def get_markets_from_oddschecker(url):
 	
@@ -59,6 +62,7 @@ def get_best_prices_for_market(url)
 	return prices_dict
 
 
+
 def get_kick_off(bs4):
     
     """
@@ -70,3 +74,25 @@ def get_kick_off(bs4):
     kick_off = kick_off_string.group(1).replace('T', " ")
     
     return kick_off
+
+
+
+def parse_football_url(url):
+
+    """
+    Given URL, returns a dictionary with market attributes
+    """
+
+    football_url_pattern = "https://(.*)/(.*)/(.*)/(.*)/(.*)/(.*)"
+    result = re.search(football_url_pattern, url)
+
+    market_attrs = {}
+
+    market_attrs["website"] = [result.group(1)]
+    market_attrs["sport"] = [result.group(2)]
+    market_attrs["country"] = [result.group(3)]
+    market_attrs["league"] = [result.group(4)]
+    market_attrs["fixture"] = [result.group(5)]
+    market_attrs["market"] = [result.group(6)]
+
+    return market_attrs
