@@ -1,0 +1,2 @@
+- update best prices every day
+- for each record work out how many days before kick-off the best price is available
