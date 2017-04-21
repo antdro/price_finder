@@ -144,3 +144,33 @@ def get_fixtures_from_oddschecker(country, league):
         all_fixtures.append((re.search(pattern, str(fixture_link)).group(1)))
         
     return all_fixtures
+
+
+
+def get_df_for_fixture(fixtures, country, league):
+    
+    url_football = 'https://www.oddschecker.com/football/'
+    first_fixture = True
+    
+    for fixture in fixtures:
+        
+        print ('{}'.format(fixture))
+        
+        url_fixture = url_football + country + '/' + league + '/' + fixture + '/'
+        url_markets = url_fixture + 'betting-markets'
+    
+        all_markets = get_markets_from_oddschecker(url_markets)
+        
+        if first_fixture:
+            url_market = url_fixture + all_markets[0]
+            df = get_df_for_market(url_market)
+            all_markets = all_markets[1:]
+            first_fixture = False
+            
+        for market in all_markets:
+            url_temp = url_fixture + market
+            df_temp = get_df_for_market(url_temp)
+            df = pd.concat([df, df_temp])
+        df.reset_index(drop = True, inplace = True)
+        
+    return df
