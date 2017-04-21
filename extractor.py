@@ -3,7 +3,7 @@
 from importer import *
 from loader import *
 import datetime
-
+from helper import *
 
 
 def get_markets_from_oddschecker(url):
@@ -123,3 +123,24 @@ def get_df_for_market(url):
     dataframe = dataframe.loc[:, ['date', 'website', 'sport','fixture', 'country','league','market', 'selection' ,'price','kickoff']]
 
     return dataframe
+
+
+
+def get_fixtures_from_oddschecker(country, league):
+    
+    """
+    Given country and league, returns a list of fixtures
+    """
+    
+    url_league = 'https://www.oddschecker.com/football/' + country + '/' + league + '/'
+    url_core = url_league.replace('https://www.oddschecker.com', "")
+
+    bs4 = from_url_to_bs4(url_league)
+    all_fixtures = []
+
+    all_fixtures_links = bs4.find_all(class_ = "button btn-1-small", href = True)
+    for fixture_link in all_fixtures_links[:-1]:
+        pattern = url_core + "(.*)" + "/winner"
+        all_fixtures.append((re.search(pattern, str(fixture_link)).group(1)))
+        
+    return all_fixtures
