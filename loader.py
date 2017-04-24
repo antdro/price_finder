@@ -1,12 +1,33 @@
 # Python 3.6.0 |Anaconda 4.3.1 (64-bit)|
 
 from importer import *
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+
 
 def from_url_to_bs4(url):
-	
-	"""
-	Provided a url returns a BeautifulSoup object with url's content
-	"""
 
-	source = urllib.request.urlopen(url).read()
-	return bs(source, "lxml")
+    while True:
+        req = Request(url)
+        try:
+            response = urlopen(req)
+        except URLError as e:
+            if hasattr(e, 'reason'):
+                print('URLError. Failed to reach a server.')
+                print('Reason: ', e.reason)
+            elif hasattr(e, 'code'):
+                print('URLError. The server couldn\'t fulfill the request.')
+                print('Error code: ', e.code)
+            continue
+        except HTTPError as e:
+            if hasattr(e, 'reason'):
+                print('HTTPError. Reason: ', e.reason)
+            elif hasattr(e, 'code'):
+                print('HTTPError. Error code: ', e.code)
+            continue
+        break
+
+    html_read = response.read()
+    bs4 = bs(html_read, "lxml")
+
+    return bs4
