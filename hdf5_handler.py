@@ -1,21 +1,16 @@
 import h5py
 
-def create_football_h5(leagues):
+def create_football_h5():
     
     """
     Given a dict with leagues, create and return hdf5 file
     """
     
-    file = h5py.File('oddschecker.h5', 'w')
-    football = file.create_group('football')
-    
-    file = h5py.File('oddschecker.h5', 'r+')
-    
-    for country in leagues.keys():
-        for league in leagues[country]:
-            football.create_group(country + '/' + league)
+    h5 = h5py.File('oddschecker.h5', 'w')
+    football = h5.create_group('football')
+    h5.close()
             
-    return file
+    return h5
 
 
 
@@ -34,4 +29,3 @@ def print_h5_structure(file):
                 for table in file[sport][country][league]:
                     print ('\t\t\t' + table)
         print ('\n')
-
