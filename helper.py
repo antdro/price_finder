@@ -22,6 +22,6 @@ def remove_duplicate_prices(df):
 	Remove duplicate prices from dataframe
 	"""
 	
-	df.drop_duplicates(subset = ['fixture', 'kickoff', 'market', 'selection', 'price'], inplace = True)
+	df.drop_duplicates(subset = ['fixture', 'kickoff', 'market', 'selection'], inplace = True)
 	
 	return df
