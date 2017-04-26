@@ -78,3 +78,24 @@ def update_league_in_db(df, country, league):
         pass
 
     store.close()
+    
+    
+    
+def update_db(leagues):
+
+    """
+    Update database given dictionary with leagues
+    """
+    
+    for country in leagues:
+        for league in leagues[country]:
+            
+            print(country)
+            print('\t' + league)
+    
+            all_fixtures = get_fixtures_from_oddschecker(country, league)
+            fixtures_for_next_round = all_fixtures[:1]
+
+            df = get_df_for_fixture(fixtures_for_next_round, country, league)
+
+            update_league_in_db(df, country, league)
