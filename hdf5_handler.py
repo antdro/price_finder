@@ -49,3 +49,32 @@ def add_league_to_football_h5(leagues):
     h5.close()
     
     return h5
+
+
+
+def update_league_in_db(df, country, league):
+    
+    """
+    Update league in database given datafrme, country and league
+    """
+    
+    if country == 'english':
+        country = country.replace('english', 'england')
+    country = country.replace('other/', '')
+    country = country.replace('world/', '')
+    league = league.replace('-', '_')
+
+    store = HDFStore('oddschecker.h5')
+    try:
+        data_h5 = store['football/' + country + '/' + league]
+        
+        data_updated = pd.concat([data_h5, df], axis = 0)
+        data_updated = data_updated.loc[:, ['date', 'fixture', 'kickoff', 'market', 'selection', 'price']]
+        data_updated = remove_duplicate_prices(data_updated)
+        data_updated.reset_index(drop = True, inplace = True)
+
+        store['football/' + country + '/' + league] = data_updated
+    except TypeError:
+        pass
+
+    store.close()
