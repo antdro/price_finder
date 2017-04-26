@@ -86,10 +86,6 @@ def parse_football_url(url):
 
     market_attrs = {}
 
-    market_attrs["website"] = result.group(1)
-    market_attrs["sport"] = result.group(2)
-    market_attrs["country"] = result.group(3)
-    market_attrs["league"] = result.group(4)
     market_attrs["fixture"] = result.group(5)
     market_attrs["market"] = result.group(6)
 
@@ -123,10 +119,10 @@ def get_df_for_market(url):
         df.index = list(range(number_of_prices)) 
         
         dataframe = pd.concat([df, df_prices], axis = 1)
-        dataframe = dataframe.loc[:, ['date', 'website', 'sport','fixture', 'country','league','market', 'selection' ,'price','kickoff']]
+        dataframe = dataframe.loc[:, ['date', 'fixture','kickoff', 'market', 'selection' ,'price']]
     else:
-        dataframe = pd.DataFrame(columns = ['date', 'website', 'sport','fixture', 'country','league','market', 'selection' ,'price','kickoff'])
-    
+        dataframe = pd.DataFrame(columns = ['date', 'fixture', 'kickoff', 'market', 'selection' ,'price'])
+        
     return dataframe
 
 
@@ -158,9 +154,6 @@ def get_df_for_fixture(fixtures, country, league):
     first_fixture = True
     
     for fixture in fixtures:
-        
-        # use for jupyter only to check the progress of scrapping
-        print (fixture)
                 
         url_fixture = url_football + country + '/' + league + '/' + fixture + '/'
         url_markets = url_fixture + 'betting-markets'
