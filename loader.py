@@ -1,8 +1,6 @@
 # Python 3.6.0 |Anaconda 4.3.1 (64-bit)|
 
-from importer import *
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
+from importer import Request, urlopen, HTTPError, URLError, bs
 
 
 def from_url_to_bs4(url):

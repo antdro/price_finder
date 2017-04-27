@@ -1,62 +1,61 @@
 # Python 3.6.0 |Anaconda 4.3.1 (64-bit)|
 
-from importer import *
+from importer import datetime, timedelta, pd, bs, os, re
 from loader import *
-import datetime
 from helper import *
-
+from hdf5_handler import *
 
 def get_markets_from_oddschecker(url):
-	
-	"""
-	Returns a list with markets available on www.oddschecker.com
-	
-	URL example: 'https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter/betting-markets'
-	"""
-	if "/betting-markets" not in url:
-			raise ValueError("URL is invalid. \nURL example: 'https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter				/betting-markets'")
+
+    """
+    Returns a list with markets available on www.oddschecker.com
+    
+    URL example: 'https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter/betting-markets'
+    """
+    if "/betting-markets" not in url:
+        raise ValueError("URL is invalid. \nURL example: 'https://www.oddschecker.com/football/italy/serie-a/fiorentina-v-inter				/betting-markets'")
         
-	list_of_markets = []
-	bs4 = from_url_to_bs4(url)
+    list_of_markets = []
+    bs4 = from_url_to_bs4(url)
 
-	result = re.search('https://www.oddschecker.com/(.*)betting-markets', url)
-	link_core = result.group(1)
-	link_part = "<a href=\"/" + link_core
+    result = re.search('https://www.oddschecker.com/(.*)betting-markets', url)
+    link_core = result.group(1)
+    link_part = "<a href=\"/" + link_core
 
-	all_links = bs4.find_all(href = True)
+    all_links = bs4.find_all(href = True)
 
-	for link in all_links:
-		if link_part in str(link):
-			market_name = re.search(link_part + "(.*)\">", str(link))
-			list_of_markets.append(market_name.group(1))
-	
-	return list_of_markets
+    for link in all_links:
+        if link_part in str(link):
+            market_name = re.search(link_part + "(.*)\">", str(link))
+            list_of_markets.append(market_name.group(1))
+    
+    return list_of_markets
 
 
 
 def get_best_prices_for_market(url):
 
-	"""
-	Given URL, returns dictionary with selections and prices for correcponding fixture and market
-	"""
+    """
+    Given URL, returns dictionary with selections and prices for correcponding fixture and market
+    """
 
-	bs4 = from_url_to_bs4(url)
-	best_odds = bs4.findAll(class_ = "add-to-bet-basket")
-	selections = []
-	prices = []
-	prices_dict = {}
+    bs4 = from_url_to_bs4(url)
+    best_odds = bs4.findAll(class_ = "add-to-bet-basket")
+    selections = []
+    prices = []
+    prices_dict = {}
 
-	for record in best_odds:
-		selection = record['data-name']    
-		price_string = record['data-ng-click']
-		price = re.search("(.*), (.*), (.*)\)", price_string).group(3)
-		selections.append(selection)
-		prices.append(price) 
+    for record in best_odds:
+        selection = record['data-name']    
+        price_string = record['data-ng-click']
+        price = re.search("(.*), (.*), (.*)\)", price_string).group(3)
+        selections.append(selection)
+        prices.append(price) 
 
-	prices_dict["selection"] = selections
-	prices_dict["price"] = prices
-	
-	return prices_dict
+    prices_dict["selection"] = selections
+    prices_dict["price"] = prices
+    
+    return prices_dict
 
 
 
@@ -127,10 +126,10 @@ def get_df_for_market(url):
 
 
 
-def get_fixtures_from_oddschecker(country, league):
+def get_fixtures_from_oddschecker(country, league, days = None):
     
     """
-    Given country and league, returns a list of fixtures
+    Given country and league, returns a list of fixtures filtered by days ahead. Default number of days = 2.
     """
     
     url_league = 'https://www.oddschecker.com/football/' + country + '/' + league + '/'
@@ -138,13 +137,29 @@ def get_fixtures_from_oddschecker(country, league):
 
     bs4 = from_url_to_bs4(url_league)
     all_fixtures = []
+    filtered_fixtures = []
 
     all_fixtures_links = bs4.find_all(class_ = "button btn-1-small", href = True)
     for fixture_link in all_fixtures_links[:-1]:
         pattern = url_core + "(.*)" + "/winner"
         all_fixtures.append((re.search(pattern, str(fixture_link)).group(1)))
+    
+    if days == None:
+        days = 2
+    
+    now = datetime.now()
+    days_ahead = timedelta(days)
+    
+    for fixture in all_fixtures:
+        fixture_url = url_league + '/' + fixture
         
-    return all_fixtures
+        kick_off_str = get_kick_off(fixture_url)
+        kick_off_date = datetime.strptime(kick_off_str, "%Y-%m-%d %H:%M")
+        
+        if (now + days_ahead) >= kick_off_date:
+            filtered_fixtures.append(fixture)
+        
+    return filtered_fixtures
 
 
 
@@ -152,8 +167,11 @@ def get_df_for_fixture(fixtures, country, league):
     
     url_football = 'https://www.oddschecker.com/football/'
     first_fixture = True
+    df = pd.DataFrame()
     
     for fixture in fixtures:
+        
+        print (fixture)
                 
         url_fixture = url_football + country + '/' + league + '/' + fixture + '/'
         url_markets = url_fixture + 'betting-markets'
@@ -168,8 +186,14 @@ def get_df_for_fixture(fixtures, country, league):
             
         for market in all_markets:
             url_temp = url_fixture + market
-            df_temp = get_df_for_market(url_temp)
-            df = pd.concat([df, df_temp])
+            
+            try:
+                df_temp = get_df_for_market(url_temp)
+                df = pd.concat([df, df_temp])
+            except KeyError:
+                print ("Error occured in " + market)
+                continue
+            
         df.reset_index(drop = True, inplace = True)
         
     return df

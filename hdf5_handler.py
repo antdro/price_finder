@@ -1,4 +1,8 @@
-import h5py
+from importer import h5py, pd, HDFStore
+from extractor import *
+from loader import *
+from helper import *
+
 
 def create_football_h5():
     
@@ -87,15 +91,16 @@ def update_db(leagues):
     Update database given dictionary with leagues
     """
     
+    from extractor import get_fixtures_from_oddschecker, get_df_for_fixture
+    
     for country in leagues:
         for league in leagues[country]:
             
             print(country)
             print('\t' + league)
     
-            all_fixtures = get_fixtures_from_oddschecker(country, league)
-            fixtures_for_next_round = all_fixtures[:1]
-
-            df = get_df_for_fixture(fixtures_for_next_round, country, league)
+            fixtures = get_fixtures_from_oddschecker(country, league)
+            
+            df = get_df_for_fixture(fixtures, country, league)
 
             update_league_in_db(df, country, league)
