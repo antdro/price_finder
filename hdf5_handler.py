@@ -10,7 +10,7 @@ def create_football_h5():
     Given a dict with leagues, create and return hdf5 file
     """
     
-    h5 = h5py.File('oddschecker.h5', 'w')
+    h5 = h5py.File('db.h5', 'w')
     football = h5.create_group('football')
     h5.close()
             
@@ -42,7 +42,7 @@ def add_league_to_football_h5(leagues):
     Adds leagues from {country: league} dict to football h5 file; returns updated h5
     """
     
-    h5 = h5py.File('oddschecker.h5', 'r+')
+    h5 = h5py.File('db.h5', 'r+')
     
     football = h5['football']
     
@@ -68,7 +68,7 @@ def update_league_in_db(df, country, league):
     country = country.replace('world/', '')
     league = league.replace('-', '_')
 
-    store = HDFStore('oddschecker.h5')
+    store = HDFStore('db.h5')
     try:
         data_h5 = store['football/' + country + '/' + league]
         
